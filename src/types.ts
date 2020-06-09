@@ -20,6 +20,13 @@ export enum CellValue {
 	mine
 }
 
+export enum Face {
+	smile = "😁",
+	careful = "😨",
+	lost = "😭",
+	won = "😎"
+}
+
 export enum CellState {
 	hidden,
 	visible,
