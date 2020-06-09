@@ -6,3 +6,10 @@
 	border-left-color: $left-top;
 	border-top-color: $left-top;
 }
+
+@mixin buttons {
+	@include borders;
+	&:active {
+		@include borders(#7b7b7b, white);
+	}
+}
