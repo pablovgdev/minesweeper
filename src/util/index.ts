@@ -1,4 +1,4 @@
-import { Cell, CellState, CellValue, MAX_COLS, MAX_ROWS, NUMBER_OF_MINES } from "../types";
+import { Cell, CellState, CellValue, Coordinate, MAX_COLS, MAX_ROWS, NUMBER_OF_MINES } from "../types";
 
 export const generateCells = (): Cell[][] => {
 	const cells: Cell[][] = [];
@@ -28,14 +28,11 @@ export const generateCells = (): Cell[][] => {
 	for (let row = 0; row < MAX_ROWS; row++) {
 		for (let col = 0; col < MAX_COLS; col++) {
 			let mines = 0;
+			const surroundingCells = getSurroundingCells(cells, row, col);
 
-			for (let nearRow = row - 1; nearRow <= row + 1; nearRow++) {
-				for (let nearCol = col - 1; nearCol <= col + 1; nearCol++) {
-					if (nearRow >= 0 && nearRow < MAX_ROWS && nearCol >= 0 && nearCol < MAX_COLS) {
-						if (cells[nearRow][nearCol].value === CellValue.mine) {
-							mines++;
-						}
-					}
+			for (const cell of surroundingCells) {
+				if (cells[cell.row][cell.col].value === CellValue.mine) {
+					mines++;
 				}
 			}
 
@@ -46,4 +43,49 @@ export const generateCells = (): Cell[][] => {
 	}
 
 	return cells;
+}
+
+export const openBlankCells = (cells: Cell[][], row: number, col: number): Cell[][] => {
+	cells[row][col].state = CellState.visible;
+
+	if (cells[row][col].value === CellValue.none) {
+		const surroundingCells = getHiddenSurroundingCells(cells, row, col);
+
+		for (const cell of surroundingCells) {
+			if (cells[cell.row][cell.col].value !== CellValue.mine) {
+				cells = openBlankCells(cells, cell.row, cell.col);
+			}
+		}
+	}
+	return cells;
+}
+
+const getSurroundingCells = (cells: Cell[][], row: number, col: number): Coordinate[] => {
+	const coordinates = []
+
+	for (let r = row - 1; r <= row + 1; r++) {
+		for (let c = col - 1; c <= col + 1; c++) {
+			if (r >= 0 && r < MAX_ROWS && c >= 0 && c < MAX_COLS) {
+				coordinates.push({ row: r, col: c });
+			}
+		}
+	}
+
+	return coordinates;
+}
+
+const getHiddenSurroundingCells = (cells: Cell[][], row: number, col: number): Coordinate[] => {
+	const coordinates = []
+
+	for (let r = row - 1; r <= row + 1; r++) {
+		for (let c = col - 1; c <= col + 1; c++) {
+			if (r >= 0 && r < MAX_ROWS && c >= 0 && c < MAX_COLS) {
+				if (cells[r][c].state === CellState.hidden) {
+					coordinates.push({ row: r, col: c });
+				}
+			}
+		}
+	}
+
+	return coordinates;
 }

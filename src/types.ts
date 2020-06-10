@@ -32,3 +32,8 @@ export enum CellState {
 	visible,
 	flagged
 }
+
+export interface Coordinate {
+	row: number;
+	col: number;
+}

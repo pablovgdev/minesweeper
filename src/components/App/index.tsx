@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Cell, Face, CellState, NUMBER_OF_MINES } from "../../types";
-import { generateCells } from "../../util";
+import { Cell, CellState, CellValue, Face, MAX_COLS, MAX_ROWS, NUMBER_OF_MINES } from "../../types";
+import { generateCells, openBlankCells } from "../../util";
 import Button from "../Button";
 import NumberDisplay from "../NumberDisplay";
 import "./App.scss";
@@ -10,11 +10,20 @@ const App: React.FC = () => {
 	const [face, setFace] = useState<Face>(Face.smile);
 	const [time, setTime] = useState<number>(0);
 	const [live, setLive] = useState<boolean>(false);
+	const [lost, setLost] = useState<boolean>(false);
 	const [minesCount, setMinesCount] = useState<number>(NUMBER_OF_MINES);
 
 	useEffect(() => {
-		const handleMouseDown = () => setFace(Face.careful);
-		const handleMouseUp = () => setFace(Face.smile);
+		const handleMouseDown = () => {
+			if (!lost && live) {
+				setFace(Face.careful);
+			}
+		}
+		const handleMouseUp = () => {
+			if (!lost && live) {
+				setFace(Face.smile);
+			}
+		}
 
 		window.addEventListener("mousedown", handleMouseDown);
 		window.addEventListener("mouseup", handleMouseUp);
@@ -23,7 +32,7 @@ const App: React.FC = () => {
 			window.removeEventListener("mousedown", handleMouseDown);
 			window.removeEventListener("mouseup", handleMouseUp);
 		}
-	}, [])
+	}, [live, lost])
 
 	useEffect(() => {
 		if (live) {
@@ -33,8 +42,54 @@ const App: React.FC = () => {
 	}, [live, time])
 
 	const handleCellClick = (row: number, col: number) => (): void => {
-		if (!live) {
-			setLive(true);
+		if (!lost) {
+			if (!live) {
+				setLive(true);
+			}
+
+			if (cells[row][col].state !== CellState.hidden) {
+				return;
+			}
+
+			if (cells[row][col].value === CellValue.mine) {
+				for (let r = 0; r < MAX_ROWS; r++) {
+					for (let c = 0; c < MAX_COLS; c++) {
+						cells[r][c].state = CellState.visible;
+					}
+				}
+				setCells(cells);
+				setFace(Face.lost);
+				setLive(false);
+				setLost(true);
+			} else {
+				if (cells[row][col].value === CellValue.none) {
+					setCells(openBlankCells(cells, row, col));
+				} else {
+					cells[row][col].state = CellState.visible;
+					setCells(cells);
+				}
+
+				let allVisible = true;
+
+				for (let r = 0; r < MAX_ROWS; r++) {
+					for (let c = 0; c < MAX_COLS; c++) {
+						if (cells[r][c].state === CellState.hidden) {
+							allVisible = false;
+							break;
+						}
+					}
+
+					if (!allVisible) {
+						break;
+					}
+				}
+
+				if (allVisible) {
+					setLive(false);
+					setFace(Face.won);
+					setLost(true);
+				}
+			}
 		}
 	}
 
@@ -45,8 +100,6 @@ const App: React.FC = () => {
 		e: React.MouseEvent
 	): void => {
 			e.preventDefault();
-
-			console.log("right click");
 
 			if (!live || minesCount === 0) {
 				return;
@@ -66,11 +119,10 @@ const App: React.FC = () => {
 		}
 
 	const handleFaceClick = () => {
-		if (live) {
-			setCells(generateCells());
-			setTime(0);
-			setLive(false);
-		}
+		setCells(generateCells());
+		setTime(0);
+		setLive(false);
+		setLost(false);
 	}
 
 	const renderCells = (): React.ReactNode => {
