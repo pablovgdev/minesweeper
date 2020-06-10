@@ -47,14 +47,13 @@ export const generateCells = (): Cell[][] => {
 
 export const openBlankCells = (cells: Cell[][], row: number, col: number): Cell[][] => {
 	cells[row][col].state = CellState.visible;
+	console.log("==========", row, col, "==========");
 
 	if (cells[row][col].value === CellValue.none) {
 		const surroundingCells = getHiddenSurroundingCells(cells, row, col);
 
 		for (const cell of surroundingCells) {
-			if (cells[cell.row][cell.col].value !== CellValue.mine) {
-				cells = openBlankCells(cells, cell.row, cell.col);
-			}
+			cells = openBlankCells(cells, cell.row, cell.col);
 		}
 	}
 	return cells;
@@ -80,7 +79,10 @@ const getHiddenSurroundingCells = (cells: Cell[][], row: number, col: number): C
 	for (let r = row - 1; r <= row + 1; r++) {
 		for (let c = col - 1; c <= col + 1; c++) {
 			if (r >= 0 && r < MAX_ROWS && c >= 0 && c < MAX_COLS) {
-				if (cells[r][c].state === CellState.hidden) {
+				if (
+					cells[r][c].state === CellState.hidden &&
+					cells[r][c].value !== CellValue.mine
+				) {
 					coordinates.push({ row: r, col: c });
 				}
 			}

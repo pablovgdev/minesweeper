@@ -4,11 +4,11 @@ import { Cell, CellState, CellValue, Face, MAX_COLS, MAX_ROWS, NUMBER_OF_MINES }
 import { generateCells, openBlankCells } from "../utils/cells-setup";
 import Button from "./Button";
 import NumberDisplay from "./NumberDisplay";
+import Timer from "./Timer";
 
 const App: React.FC = () => {
 	const [cells, setCells] = useState<Cell[][]>(generateCells());
 	const [face, setFace] = useState<Face>(Face.smile);
-	const [time, setTime] = useState<number>(0);
 	const [live, setLive] = useState<boolean>(false);
 	const [lost, setLost] = useState<boolean>(false);
 	const [minesCount, setMinesCount] = useState<number>(NUMBER_OF_MINES);
@@ -32,14 +32,7 @@ const App: React.FC = () => {
 			window.removeEventListener("mousedown", handleMouseDown);
 			window.removeEventListener("mouseup", handleMouseUp);
 		}
-	}, [live, lost])
-
-	useEffect(() => {
-		if (live) {
-			const interval = setInterval(() => setTime(Math.min(time + 1, 999)), 1000);
-			return () => clearInterval(interval);
-		}
-	}, [live, time])
+	}, [live, lost]);
 
 	const handleCellClick = (row: number, col: number) => (): void => {
 		if (!lost) {
@@ -120,7 +113,7 @@ const App: React.FC = () => {
 
 	const handleFaceClick = () => {
 		setCells(generateCells());
-		setTime(0);
+		// setTime(0);
 		setLive(false);
 		setLost(false);
 		setMinesCount(NUMBER_OF_MINES);
@@ -151,7 +144,7 @@ const App: React.FC = () => {
 				<div className="Face" onClick={handleFaceClick}>
 					<span role="img" aria-label="face">{face}</span>
 				</div>
-				<NumberDisplay value={time} />
+				<Timer live={live} />
 			</div>
 			<div className="Body">{renderCells()}</div>
 		</div>
