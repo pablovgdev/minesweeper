@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Cell, CellState, CellValue, Face, MAX_COLS, MAX_ROWS, NUMBER_OF_MINES } from "../../types";
-import { generateCells, openBlankCells } from "../../util";
-import Button from "../Button";
-import NumberDisplay from "../NumberDisplay";
-import "./App.scss";
+import "../styles/App.scss";
+import { Cell, CellState, CellValue, Face, MAX_COLS, MAX_ROWS, NUMBER_OF_MINES } from "../types";
+import { generateCells, openBlankCells } from "../utils/cells-setup";
+import Button from "./Button";
+import NumberDisplay from "./NumberDisplay";
 
 const App: React.FC = () => {
 	const [cells, setCells] = useState<Cell[][]>(generateCells());
@@ -36,7 +36,7 @@ const App: React.FC = () => {
 
 	useEffect(() => {
 		if (live) {
-			const interval = setInterval(() => setTime(Math.min(time + 1, 999)), 1000)
+			const interval = setInterval(() => setTime(Math.min(time + 1, 999)), 1000);
 			return () => clearInterval(interval);
 		}
 	}, [live, time])
@@ -123,6 +123,7 @@ const App: React.FC = () => {
 		setTime(0);
 		setLive(false);
 		setLost(false);
+		setMinesCount(NUMBER_OF_MINES);
 	}
 
 	const renderCells = (): React.ReactNode => {

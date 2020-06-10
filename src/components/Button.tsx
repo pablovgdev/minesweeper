@@ -1,6 +1,6 @@
-import React from "react";
-import { CellState, CellValue } from "../../types";
-import "./Button.scss";
+import React, { useEffect } from "react";
+import { CellState, CellValue } from "../types";
+import "../styles/Button.scss";
 
 interface ButtonProps {
 	state: CellState;
@@ -12,6 +12,10 @@ interface ButtonProps {
 }
 
 const Button: React.FC<ButtonProps> = ({ state, value, row, col, onClick, onContext }) => {
+	useEffect(() => {
+		return () => console.log("Button " + row + "-" + col + " unmounting");;
+	}, [state, value, row, col]);
+
 	const renderContent = (): React.ReactNode => {
 		if (state === CellState.visible) {
 			if (value === CellValue.mine) {
