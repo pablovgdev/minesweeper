@@ -20,9 +20,8 @@ export enum CellValue {
 	mine
 }
 
-export enum Face {
+export enum Faces {
 	smile = "😁",
-	careful = "😨",
 	lost = "😭",
 	won = "😎"
 }

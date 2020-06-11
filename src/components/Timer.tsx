@@ -1,23 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
+import GameContext from "./Context";
 import NumberDisplay from "./NumberDisplay";
 
-interface TimerProps {
-	live: boolean;
-}
+const Timer: React.FC = () => {
+  const { start, time, setTime } = useContext(GameContext);
 
-const Timer: React.FC<TimerProps> = ({ live }) => {
-	const [time, setTime] = useState<number>(0);
+  useEffect(() => {
+    if (start) {
+      const interval = setInterval(() => setTime(Math.min(time + 1, 999)), 1000);
+      return () => clearInterval(interval);
+    }
+  }, [start, time, setTime]);
 
-	useEffect(() => {
-		if (live) {
-			const interval = setInterval(() => setTime(Math.min(time + 1, 999)), 1000);
-			return () => clearInterval(interval);
-		} else {
-			setTime(0);
-		}
-	}, [live, time]);
-
-	return <NumberDisplay value={time} />
+  return <NumberDisplay value={time} />
 }
 
 export default Timer;
